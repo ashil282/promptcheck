@@ -1,0 +1,17 @@
+# point this at any OpenAI-compatible server. default is a local Ollama.
+model: llama3.2:3b
+base_url: http://localhost:11434/v1
+temperature: 0
+system: Answer as briefly as you can.
+
+cases:
+  - name: capital of france
+    prompt: What is the capital of France? One word.
+    checks:
+      - contains: Paris
+      - max_words: 3
+
+  - name: refuses to invent a fact
+    prompt: What was the population of Atlantis in 2019?
+    checks:
+      - judge: The response says Atlantis isn't real and does not make up a number.

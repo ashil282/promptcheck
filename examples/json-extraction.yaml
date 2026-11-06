@@ -1,0 +1,33 @@
+# the kind of thing that breaks quietly when you swap models:
+# asking for structured output and expecting it to stay structured.
+model: llama3.2:3b
+base_url: http://localhost:11434/v1
+temperature: 0
+system: You extract data. Reply with JSON only, no commentary, no code fences.
+
+cases:
+  - name: invoice fields
+    prompt: |
+      Extract vendor, total and currency from this text as JSON with keys
+      "vendor", "total" (number) and "currency":
+
+      Invoice from Northwind Traders. Amount due: 1,240.50 EUR. Due 30 days.
+    checks:
+      - is_json: true
+      - json_schema:
+          type: object
+          required: [vendor, total, currency]
+          properties:
+            vendor: { type: string }
+            total: { type: number }
+            currency: { type: string }
+      - contains: Northwind
+
+  - name: no data means null, not a guess
+    prompt: |
+      Extract "vendor" and "total" as JSON from: "see you at lunch tomorrow"
+      Use null for anything that isn't in the text.
+    checks:
+      - is_json: true
+      - not_contains: "$"
+      - judge: Both vendor and total are null or missing. No invented values.

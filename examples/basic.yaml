@@ -1,0 +1,26 @@
+model: llama3.2:3b
+base_url: http://localhost:11434/v1
+temperature: 0
+
+vars:
+  city: Lisbon
+
+cases:
+  - name: one word answer
+    system: Reply with a single word and nothing else.
+    prompt: What colour is a ripe banana?
+    checks:
+      - icontains: yellow
+      - max_words: 2
+
+  - name: uses the variable
+    prompt: "Name one famous tram line in {{city}}."
+    checks:
+      - icontains: "28"
+
+  - name: arithmetic holds up across runs
+    prompt: What is 17 * 3? Reply with the number only.
+    repeat: 5
+    min_pass_rate: 0.8
+    checks:
+      - equals: "51"
